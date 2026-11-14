@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+*.user
+*.suo
+.vs/
+**/bin/
+**/obj/
+node_modules/
+dist/
+coverage/
+*.pfx
+*.p12
+*.key
