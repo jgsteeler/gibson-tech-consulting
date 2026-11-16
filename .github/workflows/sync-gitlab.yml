@@ -1,0 +1,49 @@
+name: Sync main to GitLab
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitlab-main-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Forward main without rewriting GitLab history
+        shell: bash
+        env:
+          GITLAB_SYNC_SSH_KEY: ${{ secrets.GITLAB_SYNC_SSH_KEY }}
+          GITLAB_REPOSITORY: git@gitlab.com:gibson-tech-works/consulting/gibson-coffee-works.git
+        run: |
+          set -euo pipefail
+          : "${GITLAB_SYNC_SSH_KEY:?Missing GITLAB_SYNC_SSH_KEY repository secret}"
+          umask 077
+          ssh_dir="$(mktemp -d)"
+          trap 'rm -f "$ssh_dir/key" "$ssh_dir/known_hosts"; rmdir "$ssh_dir"' EXIT
+          printf '%s\n' "$GITLAB_SYNC_SSH_KEY" > "$ssh_dir/key"
+          printf '%s\n' 'gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf' > "$ssh_dir/known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $ssh_dir/key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$ssh_dir/known_hosts"
+          git push "$GITLAB_REPOSITORY" HEAD:refs/heads/main
+          expected="$(git rev-parse HEAD)"
+          actual="$(git ls-remote "$GITLAB_REPOSITORY" refs/heads/main | cut -f1)"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "::error::GitLab main does not match the forwarded GitHub commit."
+            exit 1
+          fi
+          printf 'Verified GitLab main at %s\n' "$actual"

@@ -1,0 +1,27 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "web"'
+    - when: never
+
+stages:
+  - test
+  - secret-detection
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
+repository-smoke:
+  stage: test
+  image: alpine:3.22
+  script:
+    - test -s README.md
+    - test -s LICENSE
+    - test -s docs/gibson-coffee-works-decision.md
+    - test -s docs/secure-spa-architecture.md
+    - test -s plan/architecture-gibson-coffee-works-1.md
+    - printf 'GitLab received commit %s\n' "$CI_COMMIT_SHA"
+
+secret_detection:
+  stage: secret-detection
