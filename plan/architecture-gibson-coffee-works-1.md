@@ -2,20 +2,21 @@
 goal: Build the Gibson Coffee Works secure reference application incrementally
 version: 1
 date_created: 2026-11-12
-last_updated: 2026-11-14
+last_updated: 2026-11-16
 owner: Gibson Tech Consulting
-status: 'On Hold'
+status: 'In progress'
 tags: [architecture, reference-application, vue, dotnet]
 ---
 
 # Introduction
 
-![Status: On Hold](https://img.shields.io/badge/status-On%20Hold-orange)
+![Status: In progress](https://img.shields.io/badge/status-In%20progress-yellow)
 
 Implement the trustworthy after before deriving scenario-specific befores.
-This plan is a proposed implementation sequence, not implemented behavior.
-Only the documentation delivery is approved. Application implementation is
-on hold until the Phase 1 decisions are recorded and implementation is authorized.
+The [reference contract](../docs/reference-application-contract.md) records
+the approved implementation choices and business rules. Implementation is
+authorized incrementally, one PR at a time. The foundation is the first slice;
+the security and ordering capabilities below remain separate acceptance gates.
 
 Paths below are proposed new paths relative to the workspace root.
 Do not create all projects or features at once.
@@ -65,9 +66,9 @@ Do not create all projects or features at once.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-001 | In `docs/reference-application-contract.md`, record .NET, Node, Vue, package manager, local identity provider, database, session/token store, deployment target, and CI provider selections. Record single-instance or distributed deployment assumptions. | No | Not started |
-| TASK-002 | In the same contract, define order states, actor permissions, refund requester, eligibility, full or partial refunds, and whether approval is separate from execution. Define idempotency and concurrent-update responses. | No | Not started |
-| TASK-003 | In the same contract, define acceptance commands, deployment smoke checks, secret provisioning, and rollback expectations. Mark implementation authorized before proceeding. | No | Not started |
+| TASK-001 | Record stack, identity provider, persistence, token/session store, deployment target, CI, and topology in `docs/reference-application-contract.md`. | Yes | 2026-11-16 |
+| TASK-002 | Record order/refund states, permissions, eligibility, idempotency, and concurrent-update rules in the contract. | Yes | 2026-11-16 |
+| TASK-003 | Record acceptance gates, local commands, secret provisioning, and deployment/rollback expectations in the contract and root README. | Yes | 2026-11-16 |
 
 ### Implementation Phase 2
 
@@ -78,7 +79,7 @@ Do not create all projects or features at once.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-004 | Scaffold `src/GibsonCoffeeWorks.Web/`, `src/GibsonCoffeeWorks.Bff/`, and `src/GibsonCoffeeWorks.Api/` using selected official tools. Pin SDK/runtime requirements and commit dependency lockfiles where supported. | No | Not started |
+| TASK-004 | Scaffold `src/gibson-coffee-works-web/`, `src/GibsonCoffeeWorks.Bff/`, `src/GibsonCoffeeWorks.Api/`, and the Aspire AppHost using official tools. Pin SDK/runtime requirements and commit dependency lockfiles. | Yes | 2026-11-16 |
 | TASK-005 | After TASK-004, add focused test projects under `tests/`, a root `README.md`, and the chosen CI configuration. Restore, type-check, build, and run tests using the same documented commands. | No | Not started |
 
 ### Implementation Phase 3
@@ -92,7 +93,7 @@ Do not create all projects or features at once.
 |------|-------------|-----------|------|
 | TASK-006 | In `src/GibsonCoffeeWorks.Bff/`, implement OIDC login/logout, server-owned sessions/tokens, CSRF protection, secure cookies, allowlisted YARP routes, and credential-safe diagnostics. Implement refresh rotation and coordination appropriate to the selected store. | No | Not started |
 | TASK-007 | In `src/GibsonCoffeeWorks.Api/`, implement Microsoft bearer validation, `PlaceOrder` and `GetOrder` handlers, ownership policies, server-calculated totals, durable persistence, and validated order transitions. Derive customer identity from verified claims, not request payloads. | No | Not started |
-| TASK-008 | After TASK-006 and TASK-007, implement `src/GibsonCoffeeWorks.Web/src/features/orders/` with menu, cart, order placement, and order status. Show loading, validation, authentication, and authorization failures explicitly. Use same-origin session requests without browser token handling. | No | Not started |
+| TASK-008 | After TASK-006 and TASK-007, implement `src/gibson-coffee-works-web/src/features/orders/` with menu, cart, order placement, and order status. Show loading, validation, authentication, and authorization failures explicitly. Use same-origin session requests without browser token handling. | No | Not started |
 | TASK-009 | After TASK-008, implement the customer, token-validation, CSRF, and refresh tests in Section 6. Document local startup and protocol configuration in `README.md`. | No | Not started |
 
 ### Implementation Phase 4
@@ -105,7 +106,7 @@ Do not create all projects or features at once.
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
 | TASK-010 | In `src/GibsonCoffeeWorks.Api/`, implement `FulfillOrder`, the approved refund-request workflow, and `ApproveRefund` handlers with operation permissions, eligibility checks, atomic transitions, and actor/time audit records. Do not equate approval with payment execution. | No | Not started |
-| TASK-011 | After TASK-010, add barista queue and manager refund views under `src/GibsonCoffeeWorks.Web/src/features/`. Use backend-returned capabilities for presentation; enforce every operation again at the API. | No | Not started |
+| TASK-011 | After TASK-010, add barista queue and manager refund views under `src/gibson-coffee-works-web/src/features/`. Use backend-returned capabilities for presentation; enforce every operation again at the API. | No | Not started |
 | TASK-012 | After TASK-011, add automated end-to-end order-to-fulfillment-to-refund-approval coverage and direct API negative tests under `tests/`. Verify state remains unchanged after rejected operations. | No | Not started |
 
 ### Implementation Phase 5
@@ -148,7 +149,7 @@ Do not create all projects or features at once.
 ## 5. Files
 
 - **FILE-001**: `docs/reference-application-contract.md`: implementation gate.
-- **FILE-002**: `src/GibsonCoffeeWorks.Web/`: Vue frontend.
+- **FILE-002**: `src/gibson-coffee-works-web/`: Vue frontend, using an npm-compatible directory name.
 - **FILE-003**: `src/GibsonCoffeeWorks.Bff/`: session and downstream boundary.
 - **FILE-004**: `src/GibsonCoffeeWorks.Api/`: resource ownership and business logic.
 - **FILE-005**: `tests/`: business, integration, and browser tests.
@@ -193,10 +194,9 @@ Do not create all projects or features at once.
 - **RISK-004**: Refund approval can be mistaken for money movement.
   Name and display the distinction until payment execution is implemented.
 - **ASSUMPTION-001**: The first slice is a single-store business with
-  synthetic identities and data, subject to Phase 1 approval.
-- **ASSUMPTION-002**: Database, identity provider, hosting, refund semantics,
-  and dependency versions remain undecided; no implementation may silently
-  choose them by treating this plan as approval.
+  synthetic identities and data, as approved in the reference contract.
+- **ASSUMPTION-002**: Hosted infrastructure remains deferred. Local startup
+  does not establish a production identity configuration or deployment.
 
 ## 8. Related Specifications / Further Reading
 

@@ -86,9 +86,10 @@ Use a Vue frontend and an ASP.NET Core backend. Apply the
 The resource-owning backend enforces business rules and authorization.
 Hiding controls in the frontend is a usability feature, not enforcement.
 
-Refund eligibility, who initiates a refund request, store boundaries,
-and payment integration must be specified before those features are built.
-A recorded approval must not be presented as a completed payment refund.
+The [reference contract](./reference-application-contract.md) defines the
+initial single-store rules: the owning customer requests a full refund after
+fulfillment, and a manager approves it. A recorded approval must not be
+presented as a completed payment refund.
 
 ## Reference security baseline
 
@@ -183,7 +184,8 @@ or finished forever.
 
 ## Current delivery boundary
 
-The approved first delivery is this decision and the
+The original documentation delivery established this decision and the
 [reference application implementation plan](../plan/architecture-gibson-coffee-works-1.md).
-Application code, insecure before examples, and package extraction are not
-part of this documentation delivery.
+The [reference contract](./reference-application-contract.md) now authorizes
+incremental implementation, beginning with a runnable foundation.
+Insecure before examples and package extraction remain out of scope.

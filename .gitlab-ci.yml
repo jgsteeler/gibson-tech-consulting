@@ -5,12 +5,35 @@ workflow:
     - when: never
 
 stages:
+  - build
   - test
   - secret-detection
 
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
+
+frontend-build:
+  stage: build
+  image: node:24.22.0-alpine
+  script:
+    - npm ci --prefix src/gibson-coffee-works-web
+    - npm run build --prefix src/gibson-coffee-works-web
+  artifacts:
+    paths:
+      - src/GibsonCoffeeWorks.Bff/wwwroot/
+    expire_in: 1 day
+
+dotnet-check:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:10.0.401
+  needs:
+    - job: frontend-build
+      artifacts: true
+  script:
+    - dotnet restore GibsonCoffeeWorks.slnx --locked-mode
+    - dotnet build GibsonCoffeeWorks.slnx --no-restore --configuration Release
+    - dotnet test GibsonCoffeeWorks.slnx --no-build --no-restore --configuration Release
 
 repository-smoke:
   stage: test

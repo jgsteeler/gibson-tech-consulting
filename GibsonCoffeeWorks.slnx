@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GibsonCoffeeWorks.Api/GibsonCoffeeWorks.Api.csproj" />
+    <Project Path="src/GibsonCoffeeWorks.AppHost/GibsonCoffeeWorks.AppHost.csproj" />
+    <Project Path="src/GibsonCoffeeWorks.Bff/GibsonCoffeeWorks.Bff.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GibsonCoffeeWorks.Bff.Tests/GibsonCoffeeWorks.Bff.Tests.csproj" />
+  </Folder>
+</Solution>
