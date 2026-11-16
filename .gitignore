@@ -13,3 +13,6 @@ coverage/
 *.pfx
 *.p12
 *.key
+src/GibsonCoffeeWorks.Bff/wwwroot/
+**/TestResults/
+.aspire/
